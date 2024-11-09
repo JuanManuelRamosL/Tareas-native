@@ -7,15 +7,18 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import { Ionicons } from "@expo/vector-icons"; // Importar iconos
 import useUserStore from "../store";
+import Layout from "../Layout";
 
 const HomeScreen = () => {
   const navigation = useNavigation();
   const user = useUserStore((state) => state.user); // Obtener usuario del estado global
+  const setUser = useUserStore((state) => state.setUser);
   const workspaces = useUserStore((state) => state.workspaces); // Obtener los workspaces del estado global
   const setWorkspaces = useUserStore((state) => state.setWorkspaces);
 
@@ -55,62 +58,88 @@ const HomeScreen = () => {
     </TouchableOpacity>
   );
 
+  const handleLogout = async () => {
+    setUser(null);
+
+    try {
+      // Limpiar el usuario de localStorage o AsyncStorage
+      if (Platform.OS === "web") {
+        localStorage.removeItem("user");
+      } else {
+        await AsyncStorage.removeItem("user");
+      }
+      alert("Sesión cerrada");
+      navigation.navigate("Inicio");
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Bienvenido a tus Workspaces</Text>
-        <Text style={styles.subtitle}>
-          Organiza y colabora en tus proyectos fácilmente
-        </Text>
+    <Layout>
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Bienvenido a tus Workspaces</Text>
+          <Text style={styles.subtitle}>
+            Organiza y colabora en tus proyectos fácilmente
+          </Text>
+          {user ? (
+            <TouchableOpacity
+              style={styles.logoutButton}
+              onPress={handleLogout}
+            >
+              <Text style={styles.logoutButtonText}>Logout</Text>
+            </TouchableOpacity>
+          ) : null}
+        </View>
+
+        <ScrollView contentContainerStyle={styles.content}>
+          {user ? (
+            <View style={styles.userContainer}>
+              {/* <Text style={styles.greeting}>Hola, {user.name}</Text> */}
+              {/* <Text style={styles.subtitle2}>Tus Workspaces:</Text> */}
+
+              {/* Mostrar la lista de workspaces */}
+              {workspaces.length > 0 ? (
+                <FlatList
+                  data={workspaces}
+                  keyExtractor={(item) => item.id.toString()}
+                  renderItem={renderWorkspace}
+                  style={styles.listWorkspaces}
+                />
+              ) : (
+                <Text style={styles.noWorkspacesText}>
+                  Aún no tienes workspaces asociados.
+                </Text>
+              )}
+
+              <TouchableOpacity
+                style={styles.createButton}
+                onPress={() => navigation.navigate("CreateWorkspace")}
+              >
+                <Ionicons name="add-circle-outline" size={20} color="#fff" />
+                <Text style={styles.buttonText}>Crear Workspace</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.joinButton}
+                onPress={() => navigation.navigate("Workspace-unirse")}
+              >
+                <Ionicons name="people-outline" size={20} color="#fff" />
+                <Text style={styles.buttonText}>Unirse a Workspace</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <TouchableOpacity
+              style={styles.loginButton}
+              onPress={() => navigation.navigate("CreateUser")}
+            >
+              <Ionicons name="log-in-outline" size={20} color="#fff" />
+              <Text style={styles.buttonText}>Iniciar Sesión</Text>
+            </TouchableOpacity>
+          )}
+        </ScrollView>
       </View>
-
-      <ScrollView contentContainerStyle={styles.content}>
-        {user ? (
-          <View style={styles.userContainer}>
-            <Text style={styles.greeting}>Hola, {user.name}</Text>
-            <Text style={styles.subtitle}>Tus Workspaces:</Text>
-
-            {/* Mostrar la lista de workspaces */}
-            {workspaces.length > 0 ? (
-              <FlatList
-                data={workspaces}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={renderWorkspace}
-                style={styles.list}
-              />
-            ) : (
-              <Text style={styles.noWorkspacesText}>
-                Aún no tienes workspaces asociados.
-              </Text>
-            )}
-
-            <TouchableOpacity
-              style={styles.createButton}
-              onPress={() => navigation.navigate("CreateWorkspace")}
-            >
-              <Ionicons name="add-circle-outline" size={20} color="#fff" />
-              <Text style={styles.buttonText}>Crear Workspace</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.joinButton}
-              onPress={() => navigation.navigate("Workspace-unirse")}
-            >
-              <Ionicons name="people-outline" size={20} color="#fff" />
-              <Text style={styles.buttonText}>Unirse a Workspace</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <TouchableOpacity
-            style={styles.loginButton}
-            onPress={() => navigation.navigate("CreateUser")}
-          >
-            <Ionicons name="log-in-outline" size={20} color="#fff" />
-            <Text style={styles.buttonText}>Iniciar Sesión</Text>
-          </TouchableOpacity>
-        )}
-      </ScrollView>
-    </View>
+    </Layout>
   );
 };
 
@@ -135,6 +164,12 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: "#f8f9fa",
+    textAlign: "center",
+    marginTop: 5,
+  },
+  subtitle2: {
+    fontSize: 16,
+    color: "#00000",
     textAlign: "center",
     marginTop: 5,
   },
@@ -212,6 +247,32 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#868e96",
     marginTop: 20,
+  },
+  logoutButton: {
+    position: "absolute",
+    top: -15,
+    right: 5,
+    backgroundColor: "#ff4d4f", // Color rojo para resaltar el botón de logout
+    paddingVertical: 12,
+    paddingHorizontal: 7,
+    borderRadius: 8,
+    alignItems: "center",
+    shadowColor: "#000", // Sombra para añadir profundidad
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 3, // Elevación en Android
+    marginTop: 20,
+    marginLeft: 5,
+  },
+  logoutButtonText: {
+    color: "#fff", // Texto blanco para buen contraste
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  listWorkspaces: {
+    display: "flex",
+    flexDirection: "row",
   },
 });
 

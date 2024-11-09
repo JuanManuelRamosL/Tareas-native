@@ -13,7 +13,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "y"
+      "bundleIdentifier": "com.juanma_9.tareas"
     },
     "android": {
       "adaptiveIcon": {

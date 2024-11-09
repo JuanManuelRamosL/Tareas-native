@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Layout from "../Layout";
 import {
   View,
@@ -7,14 +7,48 @@ import {
   StyleSheet,
   ScrollView,
   ImageBackground,
-  Dimensions, // Para obtener las dimensiones de la pantalla
+  Dimensions,
+  Platform, // Para obtener las dimensiones de la pantalla
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import useUserStore from "../store";
 
 const { width } = Dimensions.get("window"); // Obtener el ancho de la pantalla
 
 export function InicioScreen() {
+  const user = useUserStore((state) => state.user);
+  const setUser = useUserStore((state) => state.setUser);
   const navigation = useNavigation();
+
+  useEffect(() => {
+    const checkUserInStorage = async () => {
+      try {
+        // Si no hay usuario en el estado global, buscamos en el almacenamiento
+        if (!user) {
+          let storedUser = null;
+
+          if (Platform.OS === "web") {
+            // En web usamos localStorage
+            storedUser = localStorage.getItem("user");
+          } else {
+            // En React Native usamos AsyncStorage
+            storedUser = await AsyncStorage.getItem("user");
+          }
+
+          if (storedUser) {
+            const parsedUser = JSON.parse(storedUser);
+            setUser(parsedUser); // Establecemos el usuario en el estado global
+            console.log("Usuario cargado desde el almacenamiento:", parsedUser);
+          }
+        }
+      } catch (error) {
+        console.error("Error al cargar el usuario del almacenamiento:", error);
+      }
+    };
+
+    checkUserInStorage();
+  }, [user, setUser]);
+
   return (
     <Layout>
       <ScrollView contentContainerStyle={styles.container}>

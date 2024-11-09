@@ -24,7 +24,8 @@
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="com.juanma_9.tareas"/>
+        <data android:scheme="com.juanma_9.tareas"  android:host="dev-76gyrab4o8b0fc0k.us.auth0.com"
+        android:pathPrefix="/android/com.juanma_9.tareas/callback"/>
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" android:exported="false"/>

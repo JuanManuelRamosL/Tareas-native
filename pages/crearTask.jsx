@@ -15,6 +15,7 @@ const CreateTaskForm = () => {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [userId, setUserId] = useState(""); // Estado para el ID del usuario seleccionado
+  const [imagen, setImagen] = useState("");
   const workspaces = useUserStore((state) => state.workspaces);
   const workspaceActual = useUserStore((state) => state.workspaceActual);
   const navigation = useNavigation();
@@ -30,6 +31,7 @@ const CreateTaskForm = () => {
         title: title,
         description: description,
         workspace_id: workspaceActual,
+        image_url: imagen,
       };
 
       const response = await axios.post(
@@ -41,7 +43,7 @@ const CreateTaskForm = () => {
           },
         }
       );
-
+      console.log(response.data);
       alert("Tarea creada: " + response.data.title);
 
       if (selectedWorkspace) {
@@ -70,6 +72,12 @@ const CreateTaskForm = () => {
         value={description}
         onChangeText={setDescription}
         placeholder="Ingrese la descripción de la tarea"
+      />
+      <TextInput
+        style={styles.input}
+        value={imagen}
+        onChangeText={setImagen}
+        placeholder="url Imagen (opcional)"
       />
 
       {/* Picker para seleccionar el usuario */}

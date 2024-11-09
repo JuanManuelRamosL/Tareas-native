@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ScrollView,
+  Image,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons"; // Importar iconos
 import axios from "axios";
@@ -18,7 +19,7 @@ const WorkspaceDetails = ({ route }) => {
   const task = useUserStore((state) => state.task);
   const navigation = useNavigation();
   const workspaceActual = useUserStore((state) => state.workspaceActual);
-
+  console.log(task);
   const fetchTasks = async () => {
     try {
       const response = await axios.get(
@@ -84,8 +85,18 @@ const WorkspaceDetails = ({ route }) => {
             {assignedTasks.length > 0 ? (
               assignedTasks.map((task) => (
                 <View key={task.id} style={styles.card}>
-                  <Text style={styles.cardTitle}>{task.title}</Text>
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate("TaskDetails", { task })}
+                  >
+                    <Text style={styles.cardTitle}>{task.title}</Text>
+                  </TouchableOpacity>
                   <Text style={styles.cardDescription}>{task.description}</Text>
+                  <Image
+                    source={{
+                      uri: task.image_url,
+                    }}
+                    style={styles.imagen}
+                  ></Image>
                   <TouchableOpacity
                     style={styles.arrowButton}
                     onPress={() => updateTaskStatus(task.id, "IN_PROGRESS")}
@@ -103,8 +114,18 @@ const WorkspaceDetails = ({ route }) => {
             {inProgressTasks.length > 0 ? (
               inProgressTasks.map((task) => (
                 <View key={task.id} style={styles.card}>
-                  <Text style={styles.cardTitle}>{task.title}</Text>
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate("TaskDetails", { task })}
+                  >
+                    <Text style={styles.cardTitle}>{task.title}</Text>
+                  </TouchableOpacity>
                   <Text style={styles.cardDescription}>{task.description}</Text>
+                  <Image
+                    source={{
+                      uri: task.image_url,
+                    }}
+                    style={styles.imagen}
+                  ></Image>
                   <View style={styles.arrowContainer}>
                     <TouchableOpacity
                       style={styles.arrowButton}
@@ -130,8 +151,18 @@ const WorkspaceDetails = ({ route }) => {
             {underReviewTasks.length > 0 ? (
               underReviewTasks.map((task) => (
                 <View key={task.id} style={styles.card}>
-                  <Text style={styles.cardTitle}>{task.title}</Text>
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate("TaskDetails", { task })}
+                  >
+                    <Text style={styles.cardTitle}>{task.title}</Text>
+                  </TouchableOpacity>
                   <Text style={styles.cardDescription}>{task.description}</Text>
+                  <Image
+                    source={{
+                      uri: task.image_url,
+                    }}
+                    style={styles.imagen}
+                  ></Image>
                   <View style={styles.arrowContainer}>
                     <TouchableOpacity
                       style={styles.arrowButton}
@@ -157,8 +188,18 @@ const WorkspaceDetails = ({ route }) => {
             {completedTasks.length > 0 ? (
               completedTasks.map((task) => (
                 <View key={task.id} style={styles.card}>
-                  <Text style={styles.cardTitle}>{task.title}</Text>
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate("TaskDetails", { task })}
+                  >
+                    <Text style={styles.cardTitle}>{task.title}</Text>
+                  </TouchableOpacity>
                   <Text style={styles.cardDescription}>{task.description}</Text>
+                  <Image
+                    source={{
+                      uri: task.image_url,
+                    }}
+                    style={styles.imagen}
+                  ></Image>
                   <TouchableOpacity
                     style={styles.arrowButton}
                     onPress={() => updateTaskStatus(task.id, "UNDER_REVIEW")}
@@ -277,6 +318,12 @@ const styles = StyleSheet.create({
     color: "#fff", // Texto blanco
     fontSize: 16,
     fontWeight: "bold", // Hace el texto más visible
+  },
+  imagen: {
+    width: 100,
+    height: 100,
+    borderRadius: 10,
+    marginBottom: 20,
   },
 });
 

@@ -6,14 +6,20 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
+  Platform,
+  Button,
 } from "react-native";
 import Layout from "../Layout";
 import useUserStore from "../store";
+import { useNavigation } from "@react-navigation/native";
+import { TouchableOpacity } from "react-native";
 
 export const UsuarioScreen = () => {
   const user = useUserStore((state) => state.user);
+  const setUser = useUserStore((state) => state.setUser);
   const [tareas, setTareas] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigation = useNavigation();
 
   // Función para obtener las tareas del usuario desde el backend
   const fetchUserTasks = async () => {
@@ -36,6 +42,24 @@ export const UsuarioScreen = () => {
     }
   }, [user]);
 
+  // Función para cerrar sesión
+  const handleLogout = async () => {
+    setUser(null);
+
+    try {
+      // Limpiar el usuario de localStorage o AsyncStorage
+      if (Platform.OS === "web") {
+        localStorage.removeItem("user");
+      } else {
+        await AsyncStorage.removeItem("user");
+      }
+      alert("Sesión cerrada");
+      navigation.navigate("Inicio");
+    } catch (error) {
+      console.error("Error al cerrar sesión:", error);
+    }
+  };
+
   return (
     <Layout>
       {user ? (
@@ -51,7 +75,9 @@ export const UsuarioScreen = () => {
           {/* Información del usuario */}
           <Text style={styles.name}>{user?.name}</Text>
           <Text style={styles.email}>{user?.email}</Text>
-
+          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+            <Text style={styles.logoutButtonText}>Logout</Text>
+          </TouchableOpacity>
           {/* Indicador de carga */}
           {loading ? (
             <ActivityIndicator size="large" color="#0000ff" />
@@ -123,5 +149,27 @@ const styles = StyleSheet.create({
   taskDescription: {
     fontSize: 14,
     color: "gray",
+  },
+  logoutButton: {
+    position: "absolute",
+    top: -15,
+    right: 5,
+    backgroundColor: "#ff4d4f", // Color rojo para resaltar el botón de logout
+    paddingVertical: 12,
+    paddingHorizontal: 7,
+    borderRadius: 8,
+    alignItems: "center",
+    shadowColor: "#000", // Sombra para añadir profundidad
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    elevation: 3, // Elevación en Android
+    marginTop: 20,
+    marginLeft: 5,
+  },
+  logoutButtonText: {
+    color: "#fff", // Texto blanco para buen contraste
+    fontSize: 16,
+    fontWeight: "bold",
   },
 });
